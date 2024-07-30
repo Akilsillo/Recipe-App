@@ -3,4 +3,12 @@ fastapi
 uvicorn
 psycopg2
 asyncpg
-python-multipart
+pydantic
+pydantic-settings
+python-jose
+bcrypt
+cryptography
+passlib
+pytest
+pytest-asyncio
+httpx

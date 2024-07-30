@@ -2,14 +2,17 @@ from pydantic import BaseModel, field_validator
 from typing import List, Optional
 from datetime import timedelta
 
-class Ingredients(BaseModel):
+class Ingredient(BaseModel):
     name: str
 
 class IngredientList(BaseModel):
-    ingredient: List[Ingredients]
+    ingredient: List[Ingredient]
+    
+class RecipeName(BaseModel):
+    name: str
     
 class RecipeModel(BaseModel):
-    name: str
+    name: RecipeName
     difficulty: str
     duration: str
     recipe_type: Optional[str] = None
