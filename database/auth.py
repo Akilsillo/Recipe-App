@@ -4,7 +4,7 @@ from fastapi.security import OAuth2PasswordBearer
 from datetime import datetime, timedelta, timezone
 from typing import Annotated
 from jose import jwt, JWTError
-from core import settings
+from .core import settings
 
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 oauth2_bearer = OAuth2PasswordBearer(tokenUrl="routers/auth/login")

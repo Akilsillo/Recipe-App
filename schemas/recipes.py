@@ -25,3 +25,7 @@ class RecipeModel(BaseModel):
             return timedelta(hours=h, minutes=m, seconds=s)
         except ValueError:
             raise ValueError("Invalid duration format. Use HH:MM:SS")
+
+class RecipeRequestForm(BaseModel):
+    recipe_data: RecipeModel
+    ingredients: IngredientList 

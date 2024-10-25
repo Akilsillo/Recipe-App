@@ -44,3 +44,23 @@ async def create_recipe(recipe: RecipeModel, ingredients_list: IngredientList,
         await insert_new_recipe(recipe_data=recipe_data, ingredients_list=ingredients, connection=conn)
     except InvalidTransactionStateError:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
+    
+
+# SQLModel
+
+from sqlmodel import Session
+from models.recipes import *
+
+# Remind to change endpoint's names
+
+@router.post("/create_ingredient_sqlmodel", status_code=status.HTTP_201_CREATED, response_model=IngredientPublic)
+async def create_ingredient_sqlmodel(ingredient_data: IngredientCreate, session: Session = Depends(get_session)):
+    new_ingredient = Ingredient.model_validate(ingredient_data)
+    session.add(new_ingredient)
+    session.commit()
+    session.refresh(new_ingredient)
+    return new_ingredient
+
+@router.post("/create_recipe_sqlmodel", status_code=status.HTTP_201_CREATED, response_model=RecipePublic)
+async def create_recipe_sqlmodel(recipe_data: RecipeCreate):
+    return recipe_data.model_validate(RecipePublic)

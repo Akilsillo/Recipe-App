@@ -1,8 +1,14 @@
 from fastapi import FastAPI
 from routers import recipes, auth
+from database.database import create_db_and_tables
 
 
 app = FastAPI()
+
+# Must be changed to Lifespan when SQLModel supports async
+@app.on_event("startup")
+def on_startup():
+    create_db_and_tables()
 
 @app.get("/health")
 async def health_check():

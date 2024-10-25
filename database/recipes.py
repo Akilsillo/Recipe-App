@@ -15,7 +15,10 @@ async def get_recipe_by_ingredients(*args, connection: Connection):
     WHERE i.name IN ({placeholders})
     GROUP BY r.name, r.difficulty, r.duration, rs.steps
     HAVING COUNT(DISTINCT i.id) = {len(args)}"""
+    print(query)
+    print(args)
     recipe = await connection.fetch(query, *args)
+    recipe = dict(recipe)
     return recipe
 
 async def insert_new_ingredient(ingredient: str, connection: Connection):
@@ -44,3 +47,19 @@ async def insert_new_recipe(recipe_data: list, ingredients_list: list, connectio
         recipe_ingredient_query = """INSERT INTO recipes_ingredients (recipe_id, ingredient_id)
                                      VALUES ($1, $2)"""
         await connection.executemany(recipe_ingredient_query, recipe_ingredient_pairs)
+        
+        
+# SQLModel
+
+from sqlmodel import select, Session
+from database.database import get_session
+from models.recipes import *
+# Do not forget to change the names
+
+def create_recipe():
+    pass
+
+# Perhaps it would be better within the endpoint, but let's try
+def get_recipe_by_name_sqlmodel(session: Session, name: str):
+    recipe = session.exec(select(Recipe).where(Recipe.name==name))
+    return recipe
