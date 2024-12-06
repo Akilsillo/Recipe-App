@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from routers import recipes, auth
-from database.database import create_db_and_tables
+from database.database import create_db_and_tables, insert_test_data
 
+import os
 
 app = FastAPI()
 
@@ -9,6 +10,8 @@ app = FastAPI()
 @app.on_event("startup")
 def on_startup():
     create_db_and_tables()
+    insert_test_data()
+
 
 @app.get("/health")
 async def health_check():
