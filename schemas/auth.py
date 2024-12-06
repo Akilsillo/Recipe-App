@@ -9,3 +9,12 @@ class CreateUserRequestForm(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+    
+    
+# Schemas sqlmodel auth and tokens
+
+class UserDataForJWT(BaseModel):
+    id: int
+    email: str
+    username: str
+    is_superuser: bool
