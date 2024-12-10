@@ -14,7 +14,7 @@ router = APIRouter(
 from sqlalchemy import and_
 from sqlmodel import Session, select
 from models.recipes import *
-from database.auth import user_dependency_sqlmodel
+from database.auth import user_dependency
 from database.utils import format_ingredient_name
 from schemas.auth import UserDataForJWT
 
@@ -23,9 +23,9 @@ from schemas.auth import UserDataForJWT
 
 # Ingredients
 
-@router.post("/create_ingredient_sqlmodel", status_code=status.HTTP_201_CREATED, response_model=IngredientPublic)
+@router.post("/create_ingredient", status_code=status.HTTP_201_CREATED, response_model=IngredientPublic)
 async def create_ingredient_sqlmodel(*, ingredient_data: IngredientCreate, session: Session = Depends(get_session),
-                                     user: user_dependency_sqlmodel):
+                                     user: user_dependency):
     
     ingredient_data.name = format_ingredient_name(ingredient_data.name)
     db_ingredient = session.exec(select(Ingredient).where(Ingredient.name == ingredient_data.name)).first()
@@ -39,24 +39,24 @@ async def create_ingredient_sqlmodel(*, ingredient_data: IngredientCreate, sessi
     session.refresh(new_ingredient)
     return new_ingredient
 
-@router.get("/read_ingredient_by_name/{ingredient_name}", status_code=status.HTTP_200_OK, response_model=IngredientPublic)
-async def read_ingredient_by_name(ingredient_name: str, session: Session = Depends(get_session)):
+@router.get("/ingredient_by_name/{ingredient_name}", status_code=status.HTTP_200_OK, response_model=IngredientPublic)
+async def ingredient_by_name(ingredient_name: str, session: Session = Depends(get_session)):
     ingredient_name = format_ingredient_name(ingredient_name)
     db_ingredient = session.exec(select(Ingredient).where(Ingredient.name == ingredient_name)).first()
     if not db_ingredient:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Ingredient not found")
     return db_ingredient
 
-@router.get("/read_ingredient_by_id/{ingredient_id}", status_code=status.HTTP_200_OK, response_model=IngredientPublic)
-async def read_ingredient_by_id(ingredient_id: int, session: Session = Depends(get_session)):
+@router.get("/ingredient_by_id/{ingredient_id}", status_code=status.HTTP_200_OK, response_model=IngredientPublic)
+async def ingredient_by_id(ingredient_id: int, session: Session = Depends(get_session)):
     db_ingredient = session.get(Ingredient, ingredient_id)
     if not db_ingredient:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Ingredient not found")
     return db_ingredient
 
-@router.delete("/delete_ingredient_sqlmodel/{ingredient_name}", status_code=status.HTTP_200_OK)
+@router.delete("/delete_ingredient_by_name/{ingredient_name}", status_code=status.HTTP_200_OK)
 async def delete_ingredient_sqlmodel(*, ingredient_name: str, session: Session = Depends(get_session),
-                                     user: user_dependency_sqlmodel):
+                                     user: user_dependency):
     ingredient_name = format_ingredient_name(ingredient_name)
     db_ingredient = session.exec(select(Ingredient).where(Ingredient.name == ingredient_name)).first()
     if not db_ingredient:
@@ -68,9 +68,9 @@ async def delete_ingredient_sqlmodel(*, ingredient_name: str, session: Session =
         return
     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="This user is not authorized")
     
-@router.delete("/delete_ingredient_by_id/{ingredient_id}", status_code=status.HTTP_200_OK)
+@router.delete("/delete_ingredient/{ingredient_id}", status_code=status.HTTP_200_OK)
 async def delete_ingredient_by_id(*, ingredient_id: int, session: Session = Depends(get_session),
-                                  user: user_dependency_sqlmodel):
+                                  user: user_dependency):
     db_ingredient = session.get(Ingredient, ingredient_id)
     if not db_ingredient:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Ingredient not found")
@@ -82,9 +82,9 @@ async def delete_ingredient_by_id(*, ingredient_id: int, session: Session = Depe
 
 # Recipes
 
-@router.post("/create_recipe_sqlmodel", status_code=status.HTTP_201_CREATED, response_model=RecipePublic)
-async def create_recipe_sqlmodel(*, recipe_data: RecipeCreate, session: Session = Depends(get_session),
-                                 user: user_dependency_sqlmodel):
+@router.post("/create_recipe", status_code=status.HTTP_201_CREATED, response_model=RecipePublic)
+async def create_recipe(*, recipe_data: RecipeCreate, session: Session = Depends(get_session),
+                                 user: user_dependency):
     new_recipe = Recipe(
         name= recipe_data.name,
         difficulty= recipe_data.difficulty,
@@ -108,14 +108,14 @@ async def create_recipe_sqlmodel(*, recipe_data: RecipeCreate, session: Session 
     session.refresh(new_recipe)
     return new_recipe
 
-@router.get("/read_recipe_by_name/{recipe_name}", status_code=status.HTTP_200_OK, response_model=RecipePublic)
-async def read_recipe_by_name(recipe_name: str, session: Session = Depends(get_session)):
+@router.get("/recipe_by_name/{recipe_name}", status_code=status.HTTP_200_OK, response_model=RecipePublic)
+async def recipe_by_name(recipe_name: str, session: Session = Depends(get_session)):
     db_recipe = session.exec(select(Recipe).where(Recipe.name == recipe_name)).first()
     if not db_recipe:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Recipe not found")
     return db_recipe
 
-@router.get("/read_recipe_by_id/{recipe_id}", status_code=status.HTTP_200_OK, response_model=RecipePublic)
+@router.get("/{recipe_id}", status_code=status.HTTP_200_OK, response_model=RecipePublic)
 async def read_recipe_by_id(recipe_id: int, session: Session = Depends(get_session)):
     db_recipe = session.get(Recipe, recipe_id)
     if not db_recipe:
@@ -123,7 +123,7 @@ async def read_recipe_by_id(recipe_id: int, session: Session = Depends(get_sessi
     return db_recipe
 
 # ***
-@router.post("/get_recipe_by_ingredients", status_code=status.HTTP_200_OK, response_model=list[RecipePublic])
+@router.post("/recipe_by_ingredients", status_code=status.HTTP_200_OK, response_model=list[RecipePublic])
 async def read_recipe_by_ingredients(ingredient_list: list[IngredientBase],
                                      session: Session = Depends(get_session)):
     # Busqueda de ingredientes en DB
@@ -144,7 +144,7 @@ async def read_recipe_by_ingredients(ingredient_list: list[IngredientBase],
 
 @router.delete("/delete_recipe_by_name/{recipe_name}", status_code=status.HTTP_200_OK)
 async def delete_recipe_by_name(*, recipe_name: str, session: Session = Depends(get_session),
-                                user: user_dependency_sqlmodel):
+                                user: user_dependency):
     db_recipe = session.exec(select(Recipe).where(Recipe.name == recipe_name)).first()
     if not db_recipe:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Recipe not found")
@@ -154,9 +154,9 @@ async def delete_recipe_by_name(*, recipe_name: str, session: Session = Depends(
         return
     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="This user is not authorized")
     
-@router.delete("/delete_recipe_by_id/{recipe_id}", status_code=status.HTTP_200_OK)
+@router.delete("/delete_recipe/{recipe_id}", status_code=status.HTTP_200_OK)
 async def delete_recipe_by_id(*, recipe_id: int, session: Session = Depends(get_session),
-                              user: user_dependency_sqlmodel):
+                              user: user_dependency):
     db_recipe = session.get(Recipe, recipe_id)
     if not db_recipe:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Recipe not found")
@@ -169,7 +169,7 @@ async def delete_recipe_by_id(*, recipe_id: int, session: Session = Depends(get_
 @router.patch("/update_recipe/{recipe_name}", status_code=status.HTTP_200_OK, response_model=RecipePublic)
 async def update_recipe(*, recipe_name: str, recipe_updated: RecipeUpdate, 
                         session: Session = Depends(get_session),
-                        user: user_dependency_sqlmodel):
+                        user: user_dependency):
     db_recipe = session.exec(select(Recipe).where(Recipe.name == recipe_name)).first()
     if not db_recipe:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Recipe not found")
@@ -185,7 +185,7 @@ async def update_recipe(*, recipe_name: str, recipe_updated: RecipeUpdate,
 
 @router.get("/get_recipe_by_id_user_dep/{recipe_id}", status_code=status.HTTP_200_OK, response_model=RecipePublic)
 async def get_recipe_by_id_user_dep(*, recipe_id: int, session: Session = Depends(get_session),
-                                    user: user_dependency_sqlmodel):
+                                    user: user_dependency):
     recipe = session.get(Recipe, recipe_id)
     if not recipe:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Recipe not found")

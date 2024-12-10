@@ -73,4 +73,4 @@ async def get_current_superuser(current_user: Annotated[User, Depends(get_curren
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized user")
     return current_user
     
-user_dependency_sqlmodel = Annotated[UserDataForJWT, Depends(get_current_user)]
+user_dependency = Annotated[UserDataForJWT, Depends(get_current_user)]

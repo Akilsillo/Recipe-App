@@ -16,8 +16,8 @@ from models.auth import User, UserCreate
 from database.auth import user_existence_verify
 from schemas.auth import UserDataForJWT, Token
 
-@router.post('/create_user', status_code=status.HTTP_201_CREATED)
-async def create_user_sqlmodel(user_data: UserCreate, session: Session = Depends(get_session)):
+@router.post('/signup', status_code=status.HTTP_201_CREATED)
+async def create_user(user_data: UserCreate, session: Session = Depends(get_session)):
     user_existence_verify(username=user_data.username, email=user_data.email, session=session)
     new_user = User(
         name=user_data.name,
@@ -30,7 +30,7 @@ async def create_user_sqlmodel(user_data: UserCreate, session: Session = Depends
     session.commit()
 
 @router.post('/login', status_code=status.HTTP_200_OK)
-async def login_user(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
                               session: Session = Depends(get_session)) -> Token:
     user_data = authenticate_user(username=form_data.username, password=form_data.password, session=session)
     if not user_data:
