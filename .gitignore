@@ -1,4 +1,4 @@
 x.py
 .venv
-**/__pycache__
-database.db
+**__pycache__
+.pytest_cache

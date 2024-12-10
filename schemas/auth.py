@@ -18,3 +18,4 @@ class UserDataForJWT(BaseModel):
     email: str
     username: str
     is_superuser: bool
+    

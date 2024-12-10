@@ -1,6 +1,6 @@
 import re
 
-def normalize_ingredients(ingredient: str)-> str:
+def format_ingredient_name(ingredient: str)-> str:
     # 
     ingredient = re.sub(r'[áéíóúÁÉÍÓÚ ]',
                         lambda m: {'á': 'a', 'é': 'e', 'í': 'i', 'ó': 'o', 'ú': 'u',
